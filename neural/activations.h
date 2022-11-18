@@ -3,7 +3,7 @@
     #include "../matrix/matrix.h"
 
     double sigmoid(double input);
-    Matrix* sigmoidPrime(Matrix* m);
-    Matrix* softmax(Matrix* m);
+    matrix_t* sigmoidPrime(matrix_t* m);
+    matrix_t* softmax(matrix_t* m);
 
 #endif

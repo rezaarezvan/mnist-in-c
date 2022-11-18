@@ -10,14 +10,14 @@
 #define MAXCHAR 1000
 
 // 784, 300, 10
-NeuralNetwork* network_create(int input, int hidden, int output, double lr) {
-	NeuralNetwork* net = malloc(sizeof(NeuralNetwork));
+neural_network_t* network_create(int input, int hidden, int output, double lr) {
+	neural_network_t* net = malloc(sizeof(neural_network_t));
 	net->input = input;
 	net->hidden = hidden;
 	net->output = output;
 	net->learning_rate = lr;
-	Matrix* hidden_layer = matrix_create(hidden, input);
-	Matrix* output_layer = matrix_create(output, hidden);
+	matrix_t* hidden_layer = matrix_create(hidden, input);
+	matrix_t* output_layer = matrix_create(output, hidden);
 	matrix_randomize(hidden_layer, hidden);
 	matrix_randomize(output_layer, output);
 	net->hidden_weights = hidden_layer;
@@ -25,16 +25,16 @@ NeuralNetwork* network_create(int input, int hidden, int output, double lr) {
 	return net;
 }
 
-void network_train(NeuralNetwork* net, Matrix* input, Matrix* output) {
+void network_train(neural_network_t* net, matrix_t* input, matrix_t* output) {
 	// Feed forward
-	Matrix* hidden_inputs	= dot(net->hidden_weights, input);
-	Matrix* hidden_outputs = apply(sigmoid, hidden_inputs);
-	Matrix* final_inputs = dot(net->output_weights, hidden_outputs);
-	Matrix* final_outputs = apply(sigmoid, final_inputs);
+	matrix_t* hidden_inputs	= dot(net->hidden_weights, input);
+	matrix_t* hidden_outputs = apply(sigmoid, hidden_inputs);
+	matrix_t* final_inputs = dot(net->output_weights, hidden_outputs);
+	matrix_t* final_outputs = apply(sigmoid, final_inputs);
 
 	// Find errors
-	Matrix* output_errors = subtract(output, final_outputs);
-	Matrix* hidden_errors = dot(transpose(net->output_weights), output_errors);
+	matrix_t* output_errors = subtract(output, final_outputs);
+	matrix_t* hidden_errors = dot(transpose(net->output_weights), output_errors);
 
 	// Backpropogate
 	// output_weights = add(
@@ -50,12 +50,12 @@ void network_train(NeuralNetwork* net, Matrix* input, Matrix* output) {
 	// 				)
 	//		 )
 	// )
-	Matrix* sigmoid_primed_mat = sigmoidPrime(final_outputs);
-	Matrix* multiplied_mat = multiply(output_errors, sigmoid_primed_mat);
-	Matrix* transposed_mat = transpose(hidden_outputs);
-	Matrix* dot_mat = dot(multiplied_mat, transposed_mat);
-	Matrix* scaled_mat = scale(net->learning_rate, dot_mat);
-	Matrix* added_mat = add(net->output_weights, scaled_mat);
+	matrix_t* sigmoid_primed_mat = sigmoidPrime(final_outputs);
+	matrix_t* multiplied_mat = multiply(output_errors, sigmoid_primed_mat);
+	matrix_t* transposed_mat = transpose(hidden_outputs);
+	matrix_t* dot_mat = dot(multiplied_mat, transposed_mat);
+	matrix_t* scaled_mat = scale(net->learning_rate, dot_mat);
+	matrix_t* added_mat = add(net->output_weights, scaled_mat);
 	matrix_free(net->output_weights); // Free the old weights before replacing
 	net->output_weights = added_mat;
 
@@ -103,12 +103,12 @@ void network_train(NeuralNetwork* net, Matrix* input, Matrix* output) {
 	matrix_free(hidden_errors);
 }
 
-void network_train_batch_imgs(NeuralNetwork* net, Img** imgs, int batch_size) {
+void network_train_batch_imgs(neural_network_t* net, img_t** imgs, int batch_size) {
 	for (int i = 0; i < batch_size; i++) {
-		if (i % 100 == 0) printf("Img No. %d\n", i);
-		Img* cur_img = imgs[i];
-		Matrix* img_data = matrix_flatten(cur_img->img_data, 0); // 0 = flatten to column vector
-		Matrix* output = matrix_create(10, 1);
+		if (i % 100 == 0) printf("img_t No. %d\n", i);
+		img_t* cur_img = imgs[i];
+		matrix_t* img_data = matrix_flatten(cur_img->img_data, 0); // 0 = flatten to column vector
+		matrix_t* output = matrix_create(10, 1);
 		output->entries[cur_img->label][0] = 1; // Setting the result
 		network_train(net, img_data, output);
 		matrix_free(output);
@@ -116,18 +116,19 @@ void network_train_batch_imgs(NeuralNetwork* net, Img** imgs, int batch_size) {
 	}
 }
 
-Matrix* network_predict_img(NeuralNetwork* net, Img* img) {
-	Matrix* img_data = matrix_flatten(img->img_data, 0);
-	Matrix* res = network_predict(net, img_data);
+matrix_t* network_predict_img(neural_network_t* net, img_t* img) {
+	matrix_t* img_data = matrix_flatten(img->img_data, 0);
+	matrix_t* res = network_predict(net, img_data);
 	matrix_free(img_data);
 	return res;
 }
 
-double network_predict_imgs(NeuralNetwork* net, Img** imgs, int n) {
+double network_predict_imgs(neural_network_t* net, img_t** imgs, int n) {
 	int n_correct = 0;
 	for (int i = 0; i < n; i++) {
-		Matrix* prediction = network_predict_img(net, imgs[i]);
+		matrix_t* prediction = network_predict_img(net, imgs[i]);
 		if (matrix_argmax(prediction) == imgs[i]->label) {
+			printf("Prediciton: %d\n", matrix_argmax(prediction));
 			n_correct++;
 		}
 		matrix_free(prediction);
@@ -135,16 +136,16 @@ double network_predict_imgs(NeuralNetwork* net, Img** imgs, int n) {
 	return 1.0 * n_correct / n;
 }
 
-Matrix* network_predict(NeuralNetwork* net, Matrix* input_data) {
-	Matrix* hidden_inputs	= dot(net->hidden_weights, input_data);
-	Matrix* hidden_outputs = apply(sigmoid, hidden_inputs);
-	Matrix* final_inputs = dot(net->output_weights, hidden_outputs);
-	Matrix* final_outputs = apply(sigmoid, final_inputs);
-	Matrix* result = softmax(final_outputs);
+matrix_t* network_predict(neural_network_t* net, matrix_t* input_data) {
+	matrix_t* hidden_inputs	= dot(net->hidden_weights, input_data);
+	matrix_t* hidden_outputs = apply(sigmoid, hidden_inputs);
+	matrix_t* final_inputs = dot(net->output_weights, hidden_outputs);
+	matrix_t* final_outputs = apply(sigmoid, final_inputs);
+	matrix_t* result = softmax(final_outputs);
 	return result;
 }
 
-void network_save(NeuralNetwork* net, char* file_string) {
+void network_save(neural_network_t* net, char* file_string) {
 	mkdir(file_string);
 	// Write the descriptor file
 	chdir(file_string);
@@ -159,8 +160,8 @@ void network_save(NeuralNetwork* net, char* file_string) {
 	chdir("-"); // Go back to the orignal directory
 }
 
-NeuralNetwork* network_load(char* file_string) {
-	NeuralNetwork* net = malloc(sizeof(NeuralNetwork));
+neural_network_t* network_load(char* file_string) {
+	neural_network_t* net = malloc(sizeof(neural_network_t));
 	char entry[MAXCHAR];
 	chdir(file_string);
 
@@ -179,7 +180,7 @@ NeuralNetwork* network_load(char* file_string) {
 	return net;
 }
 
-void network_print(NeuralNetwork* net) {
+void network_print(neural_network_t* net) {
 	printf("# of Inputs: %d\n", net->input);
 	printf("# of Hidden: %d\n", net->hidden);
 	printf("# of Output: %d\n", net->output);
@@ -189,7 +190,7 @@ void network_print(NeuralNetwork* net) {
 	matrix_print(net->output_weights);
 }
 
-void network_free(NeuralNetwork *net) {
+void network_free(neural_network_t *net) {
 	matrix_free(net->hidden_weights);
 	matrix_free(net->output_weights);
 	free(net);

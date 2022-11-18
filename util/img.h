@@ -4,13 +4,13 @@
 	#include "../matrix/matrix.h"
 
 	typedef struct {
-		Matrix* img_data;
+		matrix_t* img_data;
 		int label;
-	} Img;
+	} img_t;
 
-	Img** csv_to_imgs(char* file_string, int number_of_imgs);
-	void img_print(Img* img);
-	void img_free(Img *img);
-	void imgs_free(Img **imgs, int n);
+	img_t** csv_to_imgs(char* file_string, int number_of_imgs);
+	void img_print(img_t* img);
+	void img_free(img_t *img);
+	void imgs_free(img_t **imgs, int n);
 	
 #endif

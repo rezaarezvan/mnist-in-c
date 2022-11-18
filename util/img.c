@@ -5,9 +5,9 @@
 
 #define MAXCHAR 10000
 
-Img** csv_to_imgs(char* file_string, int number_of_imgs) {
+img_t** csv_to_imgs(char* file_string, int number_of_imgs) {
 	FILE *fp;
-	Img** imgs = malloc(number_of_imgs * sizeof(Img*));
+	img_t** imgs = malloc(number_of_imgs * sizeof(img_t*));
 	char row[MAXCHAR];
 	fp = fopen(file_string, "r");
 
@@ -15,7 +15,7 @@ Img** csv_to_imgs(char* file_string, int number_of_imgs) {
 	fgets(row, MAXCHAR, fp);
 	int i = 0;
 	while (feof(fp) != 1 && i < number_of_imgs) {
-		imgs[i] = malloc(sizeof(Img));
+		imgs[i] = malloc(sizeof(img_t));
 
 		int j = 0;
 		fgets(row, MAXCHAR, fp);
@@ -36,18 +36,18 @@ Img** csv_to_imgs(char* file_string, int number_of_imgs) {
 	return imgs;
 }
 
-void img_print(Img* img) {
+void img_print(img_t* img) {
 	matrix_print(img->img_data);
-	printf("Img Label: %d\n", img->label);
+	printf("img_t Label: %d\n", img->label);
 }
 
-void img_free(Img* img) {
+void img_free(img_t* img) {
 	matrix_free(img->img_data);
 	free(img);
 	img = NULL;
 }
 
-void imgs_free(Img** imgs, int n) {
+void imgs_free(img_t** imgs, int n) {
 	for (int i = 0; i < n; i++) {
 		img_free(imgs[i]);
 	}
