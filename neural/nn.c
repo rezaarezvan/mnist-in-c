@@ -105,7 +105,7 @@ void network_train(neural_network_t* net, matrix_t* input, matrix_t* output) {
 
 void network_train_batch_imgs(neural_network_t* net, img_t** imgs, int batch_size) {
 	for (int i = 0; i < batch_size; i++) {
-		if (i % 100 == 0) printf("img_t No. %d\n", i);
+		if (i % 100 == 0) printf("Img No. %d\n", i);
 		img_t* cur_img = imgs[i];
 		matrix_t* img_data = matrix_flatten(cur_img->img_data, 0); // 0 = flatten to column vector
 		matrix_t* output = matrix_create(10, 1);
@@ -128,7 +128,6 @@ double network_predict_imgs(neural_network_t* net, img_t** imgs, int n) {
 	for (int i = 0; i < n; i++) {
 		matrix_t* prediction = network_predict_img(net, imgs[i]);
 		if (matrix_argmax(prediction) == imgs[i]->label) {
-			printf("Prediciton: %d\n", matrix_argmax(prediction));
 			n_correct++;
 		}
 		matrix_free(prediction);
@@ -157,7 +156,7 @@ void network_save(neural_network_t* net, char* file_string) {
 	matrix_save(net->hidden_weights, "hidden");
 	matrix_save(net->output_weights, "output");
 	printf("Successfully written to '%s'\n", file_string);
-	chdir("-"); // Go back to the orignal directory
+	chdir(".."); // Go back to the orignal directory
 }
 
 neural_network_t* network_load(char* file_string) {

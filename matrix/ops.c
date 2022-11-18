@@ -10,29 +10,23 @@ int check_dimensions(matrix_t *m1, matrix_t *m2) {
 matrix_t* multiply(matrix_t *m1, matrix_t *m2) {
 	if (check_dimensions(m1, m2)) {
 		matrix_t *m = matrix_create(m1->rows, m1->cols);
-		int r = m->rows;
-		int c = m->cols;
-		for(int i = 0; i < r; i++) {
-			for (int j = 0; j < r; j++) {
-				m->entries[i][j] = 0;
-				for (int k = 0; k < c; k++) {
-					m->entries[i][j] += m1->entries[i][k] * m2->entries[k][j];
-				}
+		for (int i = 0; i < m1->rows; i++) {
+			for (int j = 0; j < m2->cols; j++) {
+				m->entries[i][j] = m1->entries[i][j] * m2->entries[i][j];
 			}
 		}
 		return m;
-	} 
-
-	printf("Dimension mistmatch multiply: %dx%d %dx%d\n", m1->rows, m1->cols, m2->rows, m2->cols);
-	exit(1);
+	} else {
+		printf("Dimension mistmatch multiply: %dx%d %dx%d\n", m1->rows, m1->cols, m2->rows, m2->cols);
+		exit(1);
+	}
 }
 
 matrix_t* add(matrix_t *m1, matrix_t *m2) {
 	if (check_dimensions(m1, m2)) {
 		matrix_t *m = matrix_create(m1->rows, m1->cols);
-		int n = m-> rows;
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < m1->rows; i++) {
+			for (int j = 0; j < m2->cols; j++) {
 				m->entries[i][j] = m1->entries[i][j] + m2->entries[i][j];
 			}
 		}
@@ -46,9 +40,8 @@ matrix_t* add(matrix_t *m1, matrix_t *m2) {
 matrix_t* subtract(matrix_t *m1, matrix_t *m2) {
 	if (check_dimensions(m1, m2)) {
 		matrix_t *m = matrix_create(m1->rows, m1->cols);
-		int n = m-> rows;
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < m1->rows; i++) {
+			for (int j = 0; j < m2->cols; j++) {
 				m->entries[i][j] = m1->entries[i][j] - m2->entries[i][j];
 			}
 		}
