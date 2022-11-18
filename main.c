@@ -21,6 +21,26 @@
 int main() {
   // srand(time(NULL));
 
+  matrix_t* A = matrix_create(3, 3);
+  matrix_t* B = matrix_create(3, 3);
+  int k = 1;
+  int l = 7;
+  for (int i = 0; i < A->rows; i++) {
+			for (int j = 0; j < A->cols; j++) {
+				A->entries[i][j]  = k++;
+        B->entries[i][j]  = l++;
+			}
+		}
+
+  matrix_print(A);
+  matrix_print(B);
+
+  matrix_t* C = multiply(A, B);
+  matrix_t* D = multiply(A, B);
+
+  matrix_print(C);
+  matrix_print(D);
+
   // TRAINING
   // int number_imgs_1 = 10000;
   // img_t **imgs_1 = csv_to_imgs("data/mnist_test.csv", number_imgs_1);
